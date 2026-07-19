@@ -1,0 +1,10 @@
+services:
+  pro5-dashboard:
+    build: .
+    container_name: pro5-dashboard
+    restart: unless-stopped
+    ports:
+      - "5011:5000"
+    env_file: .env
+    volumes:
+      - ./data:/data

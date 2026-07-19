@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Creator 5 Pro</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel-2:#1c232c; --line:#252d38;
+    --text:#e6edf3; --muted:#8b96a5; --accent:#4c9aff; --ok:#3fb950;
+    --warn:#d29922; --err:#f85149; --hot:#ff7b52;
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+       font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:1200px;margin:0 auto;padding:24px 20px 60px}
+  header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:22px}
+  h1{font-size:20px;margin:0;font-weight:600;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:12px}
+  .pill{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:999px;
+        background:var(--panel-2);border:1px solid var(--line);font-size:12px;font-weight:500}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+  .dot.ok{background:var(--ok);box-shadow:0 0 0 3px rgba(63,185,80,.15)}
+  .dot.err{background:var(--err);box-shadow:0 0 0 3px rgba(248,81,73,.15)}
+  .dot.warn{background:var(--warn)}
+  .spacer{flex:1}
+  button{font:inherit;color:var(--text);background:var(--panel-2);border:1px solid var(--line);
+         border-radius:8px;padding:8px 14px;cursor:pointer;transition:.15s}
+  button:hover{border-color:#3a4756;background:#222a34}
+  button.on{background:rgba(76,154,255,.15);border-color:var(--accent);color:#9dc4ff}
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+  .card h2{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);
+           margin:0 0 12px;font-weight:600}
+  .big{font-size:26px;font-weight:600;letter-spacing:-.02em}
+  .unit{font-size:13px;color:var(--muted);font-weight:400}
+  .row{display:flex;justify-content:space-between;gap:12px;padding:5px 0;font-size:13px}
+  .row + .row{border-top:1px solid rgba(255,255,255,.04)}
+  .row span:first-child{color:var(--muted)}
+  .row span:last-child{font-variant-numeric:tabular-nums;text-align:right}
+  .bar{height:7px;background:var(--panel-2);border-radius:99px;overflow:hidden;margin:10px 0 6px}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#7ab8ff);
+           border-radius:99px;transition:width .6s ease}
+  .therm{height:4px;background:var(--panel-2);border-radius:99px;overflow:hidden;margin-top:5px}
+  .therm > i{display:block;height:100%;background:var(--hot);transition:width .5s}
+  .nozzles{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}
+  .nz{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:7px 4px;
+      text-align:center;font-size:11px}
+  .nz.act{border-color:var(--hot);background:rgba(255,123,82,.1)}
+  .nz b{display:block;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+  .nz span{color:var(--muted)}
+  .slots{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+  .slot{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 4px;
+        text-align:center;font-size:11px}
+  .slot.act{border-color:var(--accent);background:rgba(76,154,255,.1)}
+  .slot.empty{opacity:.4}
+  .chip{width:22px;height:22px;border-radius:50%;margin:0 auto 5px;
+        border:1px solid rgba(255,255,255,.25)}
+  .slot b{display:block;font-size:11px;font-weight:600}
+  .slot span{color:var(--muted);font-size:10px}
+  .thumb{width:76px;height:76px;border-radius:8px;border:1px solid var(--line);
+         object-fit:cover;background:var(--panel-2);float:right;margin:0 0 10px 12px;display:none}
+  .cam{margin-top:16px}
+  .cam-box{background:#000;border:1px solid var(--line);border-radius:var(--radius);
+           overflow:hidden;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center}
+  .cam-box img{width:100%;height:100%;object-fit:contain;display:block}
+  .cam-off{color:var(--muted);font-size:13px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;color:var(--muted);font-weight:500;font-size:11px;text-transform:uppercase;
+     letter-spacing:.06em;padding:6px 8px;border-bottom:1px solid var(--line)}
+  td{padding:7px 8px;border-bottom:1px solid rgba(255,255,255,.04);font-variant-numeric:tabular-nums}
+  .file{font-size:13px;word-break:break-all;color:var(--text);margin-bottom:2px}
+  .banner{background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.35);color:#ffb4ae;
+          padding:10px 14px;border-radius:8px;margin-bottom:16px;font-size:13px;display:none}
+  .stale{background:rgba(210,153,34,.1);border-color:rgba(210,153,34,.35);color:#f0cd7a}
+  @media (max-width:640px){ .wrap{padding:16px 12px 40px} h1{font-size:17px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>Creator 5 Pro</h1>
+      <div class="sub">{{ printer_host }}</div>
+    </div>
+    <span class="pill"><span class="dot" id="dot"></span><span id="statusText">connecting…</span></span>
+    <div class="spacer"></div>
+    <button id="lightBtn">Light</button>
+    <button id="camBtn">Camera</button>
+  </header>
+
+  <div class="banner" id="banner"></div>
+
+  <div class="grid">
+
+    <div class="card" style="grid-column:span 2;min-width:0">
+      <h2>Current job</h2>
+      <img class="thumb" id="jobThumb" alt="">
+      <div class="file" id="jobFile">—</div>
+      <div class="big"><span id="jobPct">0</span><span class="unit">%</span></div>
+      <div class="bar"><i id="jobBar" style="width:0%"></i></div>
+      <div class="row"><span>Layer</span><span id="jobLayer">—</span></div>
+      <div class="row"><span>Elapsed</span><span id="jobElapsed">—</span></div>
+      <div class="row"><span>Remaining</span><span id="jobLeft">—</span></div>
+      <div class="row"><span>Speed</span><span id="jobSpeed">—</span></div>
+    </div>
+
+    <div class="card">
+      <h2>Temperatures</h2>
+      <div class="row"><span id="tNozLabel">Nozzle</span><span id="tNoz">—</span></div>
+      <div class="therm"><i id="tNozBar" style="width:0%"></i></div>
+      <div class="row"><span>Bed</span><span id="tBed">—</span></div>
+      <div class="therm"><i id="tBedBar" style="width:0%"></i></div>
+      <div class="row"><span>Chamber</span><span id="tCham">—</span></div>
+      <div class="therm"><i id="tChamBar" style="width:0%"></i></div>
+      <div id="nozList" class="nozzles"></div>
+    </div>
+
+    <div class="card">
+      <h2>Material station</h2>
+      <div id="slots" class="slots"><span style="color:var(--muted);font-size:13px">—</span></div>
+      <div class="row"><span>Loaded type</span><span id="fType">—</span></div>
+      <div class="row"><span>Job length</span><span id="fLen">—</span></div>
+      <div class="row"><span>Job weight</span><span id="fWeight">—</span></div>
+      <div class="row"><span>Lifetime used</span><span id="fCum">—</span></div>
+    </div>
+
+    <div class="card">
+      <h2>Lifetime totals</h2>
+      <div class="big"><span id="ltHours">—</span><span class="unit"> h printed</span></div>
+      <div class="row"><span>Jobs logged</span><span id="ltJobs">—</span></div>
+      <div class="row"><span>Logged runtime</span><span id="ltLogged">—</span></div>
+      <div class="row"><span>Filament</span><span id="ltFil">—</span></div>
+    </div>
+
+    <div class="card">
+      <h2>Machine</h2>
+      <div class="row"><span>Nozzle</span><span id="mNoz">—</span></div>
+      <div class="row"><span>Door</span><span id="mDoor">—</span></div>
+      <div class="row"><span>Cooling fan</span><span id="mFan">—</span></div>
+      <div class="row"><span>Chamber fan</span><span id="mCFan">—</span></div>
+      <div class="row"><span>TVOC</span><span id="mTvoc">—</span></div>
+      <div class="row"><span>Free storage</span><span id="mDisk">—</span></div>
+      <div class="row"><span>Firmware</span><span id="mFw">—</span></div>
+    </div>
+
+  </div>
+
+  <div class="cam">
+    <div class="cam-box" id="camBox"><div class="cam-off">Camera off</div></div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h2>Recent jobs</h2>
+    <table>
+      <thead><tr><th>File</th><th>Finished</th><th>Duration</th><th>Result</th></tr></thead>
+      <tbody id="histBody"><tr><td colspan="4" style="color:var(--muted)">No jobs logged yet.</td></tr></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function dur(s){
+  s = Math.max(0, Math.round(s||0));
+  const h = Math.floor(s/3600), m = Math.floor(s%3600/60);
+  if (h) return h+"h "+String(m).padStart(2,"0")+"m";
+  if (m) return m+"m "+String(s%60).padStart(2,"0")+"s";
+  return s+"s";
+}
+const t1 = v => (v==null? "—" : (Math.round(v*10)/10).toFixed(1));
+
+let lightOn = false, camOn = false;
+
+function paint(d){
+  const bad = !!d._error && d._stale;
+  $("banner").style.display = d._error ? "block" : "none";
+  $("banner").className = "banner" + (d._stale ? " stale" : "");
+  if (d._error) {
+    $("banner").textContent = d._stale
+      ? `Showing cached data from ${d._age_s}s ago — printer not responding (${d._error})`
+      : `Printer error: ${d._error}`;
+  }
+
+  const st = d.status || "unknown";
+  $("statusText").textContent = st.charAt(0).toUpperCase()+st.slice(1);
+  const dot = $("dot");
+  dot.className = "dot " + (d.error_code ? "err" : d.printing ? "ok" : bad ? "warn" : "");
+
+  const j = d.job||{}, t = d.temps||{}, f = d.filament||{}, m = d.machine||{}, fan = d.fans||{};
+
+  $("jobFile").textContent = j.file || "No active job";
+  $("jobPct").textContent = t1(j.progress);
+  $("jobBar").style.width = (j.progress||0)+"%";
+  $("jobLayer").textContent = j.layer_total ? `${j.layer||0} / ${j.layer_total}` : (j.layer||"—");
+  $("jobElapsed").textContent = j.elapsed_s ? dur(j.elapsed_s) : "—";
+  $("jobLeft").textContent = j.remaining_s ? dur(j.remaining_s) : "—";
+  $("jobSpeed").textContent = j.speed_mm_s ? `${t1(j.speed_mm_s)} mm/s` + (j.speed_pct? ` (${j.speed_pct}%)`:"") : "—";
+
+  const thumb = $("jobThumb");
+  if (j.has_thumb) { thumb.style.display="block"; if(!thumb.dataset.f || thumb.dataset.f!==j.file){
+      thumb.dataset.f=j.file; thumb.src="/camera/thumb?t="+Date.now(); } }
+  else { thumb.style.display="none"; thumb.dataset.f=""; }
+
+  const temp = (cur,tgt,el,bar,max) => {
+    $(el).textContent = tgt ? `${t1(cur)} / ${t1(tgt)} °C` : `${t1(cur)} °C`;
+    $(bar).style.width = Math.min(100, (cur||0)/max*100)+"%";
+  };
+  $("tNozLabel").textContent = t.nozzle_id ? `Nozzle ${t.nozzle_id} (active)` : "Nozzle";
+  temp(t.nozzle, t.nozzle_target, "tNoz","tNozBar",300);
+  temp(t.bed, t.bed_target, "tBed","tBedBar",120);
+  temp(t.chamber, t.chamber_target, "tCham","tChamBar",70);
+
+  const nz = d.nozzles||[];
+  $("nozList").innerHTML = nz.length<2 ? "" : nz.map(n =>
+    `<div class="nz${n.id===t.nozzle_id?" act":""}"><b>${Math.round(n.temp)}°</b>
+     <span>T${n.id}${n.target?" → "+Math.round(n.target)+"°":""}</span></div>`).join("");
+
+  const ms = d.material_station||{}, sl = ms.slots||[];
+  $("slots").innerHTML = !sl.length ? '<span style="color:var(--muted);font-size:13px">—</span>'
+    : sl.map(s => `<div class="slot${s.active?" act":""}${s.loaded?"":" empty"}">
+        <div class="chip" style="background:${s.color||"#444"}"></div>
+        <b>${s.material||"—"}</b><span>Slot ${s.id}</span></div>`).join("");
+
+  const activeSlot = sl.find(s=>s.active);
+  $("fType").textContent = activeSlot ? `${activeSlot.material} (slot ${activeSlot.id})`
+    : ([f.left_type,f.right_type].filter(Boolean).join(" / ") || "—");
+  $("fLen").textContent = f.est_len_m ? `${t1(f.est_len_m)} m` : "—";
+  $("fWeight").textContent = f.est_weight_g ? `${t1(f.est_weight_g)} g` : "—";
+  $("fCum").textContent = f.cumulative_m ? `${t1(f.cumulative_m)} m` : "—";
+  $("ltFil").textContent = f.cumulative_m ? `${t1(f.cumulative_m)} m` : "—";
+
+  $("ltHours").textContent = m.cumulative_print_s ? Math.round(m.cumulative_print_s/3600) : "—";
+  $("mNoz").textContent = [m.nozzle_model, m.nozzle_count && `x${m.nozzle_count}`].filter(Boolean).join(" ") || "—";
+  $("mDoor").textContent = m.door || "—";
+  $("mFan").textContent = fan.cooling ? `${t1(fan.cooling)}%` : "—";
+  $("mCFan").textContent = fan.chamber ? `${t1(fan.chamber)}%` : "—";
+  $("mTvoc").textContent = m.tvoc || "—";
+  $("mDisk").textContent = m.disk_free_gb ? `${t1(m.disk_free_gb)} GB` : "—";
+  $("mFw").textContent = d.firmware || "—";
+
+  lightOn = !!d.light_on;
+  $("lightBtn").classList.toggle("on", lightOn);
+  $("lightBtn").textContent = "Light " + (lightOn ? "on" : "off");
+}
+
+async function tick(){
+  try{
+    const r = await fetch("/api/status", {cache:"no-store"});
+    const d = await r.json();
+    if (!r.ok) {
+      $("banner").style.display="block";
+      $("banner").className="banner";
+      $("banner").textContent = "Printer unreachable: " + (d._error||r.status);
+      $("statusText").textContent = "offline";
+      $("dot").className = "dot err";
+      return;
+    }
+    paint(d);
+  }catch(e){ /* transient; next tick retries */ }
+}
+
+async function loadHistory(){
+  try{
+    const r = await fetch("/api/history");
+    const h = await r.json();
+    $("ltJobs").textContent = h.count || 0;
+    $("ltLogged").textContent = h.total_duration_s ? dur(h.total_duration_s) : "—";
+    const tb = $("histBody");
+    if (!h.jobs || !h.jobs.length) return;
+    tb.innerHTML = h.jobs.map(j => `<tr>
+        <td style="word-break:break-all">${j.file||"—"}</td>
+        <td>${new Date(j.finished_at*1000).toLocaleString()}</td>
+        <td>${dur(j.duration_s)}</td>
+        <td>${j.status||"—"}</td></tr>`).join("");
+  }catch(e){}
+}
+
+$("lightBtn").onclick = async () => {
+  const want = !lightOn;
+  $("lightBtn").disabled = true;
+  try{
+    const r = await fetch("/api/light", {method:"POST",
+      headers:{"Content-Type":"application/json"}, body: JSON.stringify({on: want})});
+    const res = await r.json();
+    if (!res.ok) {
+      $("banner").style.display = "block";
+      $("banner").className = "banner stale";
+      $("banner").textContent = res.reason || "Light did not change.";
+      setTimeout(()=>{ $("banner").style.display="none"; }, 8000);
+    }
+    lightOn = !!res.on;                 // trust the re-read, never the command
+    $("lightBtn").classList.toggle("on", lightOn);
+    $("lightBtn").textContent = "Light " + (lightOn?"on":"off");
+  } finally { $("lightBtn").disabled = false; tick(); }
+};
+
+// Toggling the camera tears down the MJPEG connection — these printers only
+// serve a couple of concurrent streams.
+$("camBtn").onclick = async () => {
+  camOn = !camOn;
+  $("camBtn").classList.toggle("on", camOn);
+  const box = $("camBox");
+  if (camOn) {
+    box.innerHTML = '<div class="cam-off">Starting stream…</div>';
+    try {
+      await fetch("/api/camera", {method:"POST", headers:{"Content-Type":"application/json"},
+                                  body: JSON.stringify({on:true})});
+    } catch(e){}
+    if (!camOn) return;              // user toggled back off while we waited
+    box.innerHTML = '<img id="camImg" alt="printer camera">';
+    $("camImg").src = "/camera/stream?t=" + Date.now();
+    $("camImg").onerror = () => { box.innerHTML = '<div class="cam-off">Camera unavailable</div>'; };
+  } else {
+    const img = $("camImg");
+    if (img) img.src = "";           // drop the MJPEG connection
+    box.innerHTML = '<div class="cam-off">Camera off</div>';
+    fetch("/api/camera", {method:"POST", headers:{"Content-Type":"application/json"},
+                          body: JSON.stringify({on:false})}).catch(()=>{});
+  }
+};
+
+tick(); loadHistory();
+setInterval(tick, 3000);
+setInterval(loadHistory, 60000);
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+# Never commit real credentials
+.env
+
+# Runtime job history
+data/
+
+__pycache__/
+*.pyc
+.DS_Store
