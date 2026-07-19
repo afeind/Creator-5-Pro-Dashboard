@@ -23,8 +23,8 @@ Built against firmware **1.9.4**. It talks to the printer's local HTTP API on po
 ## Quick start
 
 ```bash
-git clone https://github.com/afeind/creator-5-pro-dashboard.git
-cd creator-5-pro-dashboard
+git clone https://github.com/afeind/Creator-5-Pro-Dashboard.git
+cd Creator-5-Pro-Dashboard
 
 cp .env.example .env
 $EDITOR .env          # <-- put your printer IP, serial, and access code here
