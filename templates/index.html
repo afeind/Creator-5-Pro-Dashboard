@@ -87,6 +87,7 @@
     </div>
     <span class="pill"><span class="dot" id="dot"></span><span id="statusText">connecting…</span></span>
     <div class="spacer"></div>
+    <button id="unitBtn">°F</button>
     <button id="lightBtn">Light</button>
     <button id="camBtn">Camera</button>
   </header>
@@ -175,8 +176,22 @@ function dur(s){
 const t1 = v => (v==null? "—" : (Math.round(v*10)/10).toFixed(1));
 
 let lightOn = false, camOn = false;
+let useF = localStorage.getItem("tempUnit") === "F";
+let lastData = null;
+
+const c2f = c => c==null ? null : c*9/5+32;
+const tconv = v => useF ? c2f(v) : v;
+
+$("unitBtn").textContent = useF ? "°C" : "°F";
+$("unitBtn").onclick = () => {
+  useF = !useF;
+  localStorage.setItem("tempUnit", useF ? "F" : "C");
+  $("unitBtn").textContent = useF ? "°C" : "°F";
+  if (lastData) paint(lastData);
+};
 
 function paint(d){
+  lastData = d;
   const bad = !!d._error && d._stale;
   $("banner").style.display = d._error ? "block" : "none";
   $("banner").className = "banner" + (d._stale ? " stale" : "");
@@ -206,8 +221,9 @@ function paint(d){
       thumb.dataset.f=j.file; thumb.src="/camera/thumb?t="+Date.now(); } }
   else { thumb.style.display="none"; thumb.dataset.f=""; }
 
+  const unit = useF ? "°F" : "°C";
   const temp = (cur,tgt,el,bar,max) => {
-    $(el).textContent = tgt ? `${t1(cur)} / ${t1(tgt)} °C` : `${t1(cur)} °C`;
+    $(el).textContent = tgt ? `${t1(tconv(cur))} / ${t1(tconv(tgt))} ${unit}` : `${t1(tconv(cur))} ${unit}`;
     $(bar).style.width = Math.min(100, (cur||0)/max*100)+"%";
   };
   $("tNozLabel").textContent = t.nozzle_id ? `Nozzle ${t.nozzle_id} (active)` : "Nozzle";
@@ -217,8 +233,8 @@ function paint(d){
 
   const nz = d.nozzles||[];
   $("nozList").innerHTML = nz.length<2 ? "" : nz.map(n =>
-    `<div class="nz${n.id===t.nozzle_id?" act":""}"><b>${Math.round(n.temp)}°</b>
-     <span>T${n.id}${n.target?" → "+Math.round(n.target)+"°":""}</span></div>`).join("");
+    `<div class="nz${n.id===t.nozzle_id?" act":""}"><b>${Math.round(tconv(n.temp))}°</b>
+     <span>T${n.id}${n.target?" → "+Math.round(tconv(n.target))+"°":""}</span></div>`).join("");
 
   const ms = d.material_station||{}, sl = ms.slots||[];
   $("slots").innerHTML = !sl.length ? '<span style="color:var(--muted);font-size:13px">—</span>'

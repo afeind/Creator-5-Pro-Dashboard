@@ -4,14 +4,14 @@ A self-hosted web dashboard for the FlashForge **Creator 5 Pro** 3D printer. Liv
 
 Built against firmware **1.9.4**. It talks to the printer's local HTTP API on port 8898 — no cloud account, no vendor app.
 
-![status](https://img.shields.io/badge/firmware-1.9.4-blue) ![license](https://img.shields.io/badge/license-MIT-green)
+![status](https://img.shields.io/badge/firmware-1.9.4-blue) ![license](https://img.shields.io/badge/license-MIT-green) ![release](https://img.shields.io/badge/release-v1.1.0-blue)
 
 ---
 
 ## Features
 
 - **Live job** — filename, thumbnail, percent, layer *n*/*N*, elapsed, remaining, speed, infill
-- **Temperatures** — bed, chamber, and all four nozzles, with the active tool highlighted
+- **Temperatures** — bed, chamber, and all four nozzles, with the active tool highlighted; toggle °C/°F with the header button (choice persists in the browser)
 - **Material station** — all 4 slots with their real filament colours, material names, and which is loaded
 - **Chamber camera** — MJPEG stream, off by default, toggled on demand
 - **Chamber light** — on/off, with the result verified against the printer (see [why that matters](#the-api-lies-about-success))
