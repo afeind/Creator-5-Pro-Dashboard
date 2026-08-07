@@ -308,6 +308,34 @@ def api_light():
     })
 
 
+@app.route("/api/clear_job", methods=["POST"])
+def api_clear_job():
+    """Dismiss the printer's on-screen "print complete" dialog.
+
+    This is the same stateCtrl_cmd/setClearPlatform call the vendor app sends
+    for its "Clear Platform" button. It only does anything meaningful when the
+    printer is in the "completed" state; sending it otherwise is harmless
+    (silently ACKed like any command) but won't change anything. As with
+    /api/light, the /control reply proves nothing — confirm by re-reading
+    status.
+    """
+    ff_control("stateCtrl_cmd", {"action": "setClearPlatform"})
+
+    for _ in range(4):
+        time.sleep(0.8)
+        detail, _err = fetch_detail()
+        if detail:
+            status = str(detail.get("status", "")).lower()
+            if status != "completed":
+                return jsonify({"ok": True, "status": status, "confirmed": True})
+    detail, _err = fetch_detail()
+    status = str((detail or {}).get("status", "")).lower()
+    return jsonify({
+        "ok": False, "status": status, "confirmed": False,
+        "reason": "The printer accepted the command but status is still \"completed\".",
+    })
+
+
 @app.route("/camera/thumb")
 def camera_thumb():
     """Current job thumbnail — plain GET on the printer, no auth body."""

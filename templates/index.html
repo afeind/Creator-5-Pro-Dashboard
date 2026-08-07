@@ -90,6 +90,7 @@
     <button id="unitBtn">°F</button>
     <button id="lightBtn">Light</button>
     <button id="camBtn">Camera</button>
+    <button id="clearBtn" style="display:none">Clear finish dialog</button>
   </header>
 
   <div class="banner" id="banner"></div>
@@ -262,6 +263,8 @@ function paint(d){
   lightOn = !!d.light_on;
   $("lightBtn").classList.toggle("on", lightOn);
   $("lightBtn").textContent = "Light " + (lightOn ? "on" : "off");
+
+  $("clearBtn").style.display = (st === "completed") ? "" : "none";
 }
 
 async function tick(){
@@ -338,6 +341,20 @@ $("camBtn").onclick = async () => {
     fetch("/api/camera", {method:"POST", headers:{"Content-Type":"application/json"},
                           body: JSON.stringify({on:false})}).catch(()=>{});
   }
+};
+
+$("clearBtn").onclick = async () => {
+  $("clearBtn").disabled = true;
+  try{
+    const r = await fetch("/api/clear_job", {method:"POST"});
+    const res = await r.json();
+    if (!res.ok) {
+      $("banner").style.display = "block";
+      $("banner").className = "banner stale";
+      $("banner").textContent = res.reason || "Finish dialog did not clear.";
+      setTimeout(()=>{ $("banner").style.display="none"; }, 8000);
+    }
+  } finally { $("clearBtn").disabled = false; tick(); }
 };
 
 tick(); loadHistory();

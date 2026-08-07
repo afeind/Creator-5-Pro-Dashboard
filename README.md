@@ -1,10 +1,10 @@
 # Creator 5 Pro Dashboard
 
-A self-hosted web dashboard for the FlashForge **Creator 5 Pro** 3D printer. Live status, temperatures, material station, chamber camera, and a working chamber-light toggle — served from a small Flask app in Docker, reachable from anywhere you can reach the container.
+A self-hosted web dashboard for the FlashForge **Creator 5 Pro** 3D printer. Live status, temperatures, material station, chamber camera, a working chamber-light toggle, and a remote dismiss for the on-screen finish dialog — served from a small Flask app in Docker, reachable from anywhere you can reach the container.
 
 Built against firmware **1.9.4**. It talks to the printer's local HTTP API on port 8898 — no cloud account, no vendor app.
 
-![status](https://img.shields.io/badge/firmware-1.9.4-blue) ![license](https://img.shields.io/badge/license-MIT-green) ![release](https://img.shields.io/badge/release-v1.1.0-blue)
+![status](https://img.shields.io/badge/firmware-1.9.4-blue) ![license](https://img.shields.io/badge/license-MIT-green) ![release](https://img.shields.io/badge/release-v1.2.0-blue)
 
 ---
 
@@ -15,6 +15,7 @@ Built against firmware **1.9.4**. It talks to the printer's local HTTP API on po
 - **Material station** — all 4 slots with their real filament colours, material names, and which is loaded
 - **Chamber camera** — MJPEG stream, off by default, toggled on demand
 - **Chamber light** — on/off, with the result verified against the printer (see [why that matters](#the-api-lies-about-success))
+- **Clear finish dialog** — remotely dismiss the on-screen "print complete" prompt (appears only while the printer reports `completed`)
 - **Lifetime totals** — print hours, filament used, free storage, firmware, door, fans, TVOC
 - **Job history** — the firmware keeps no per-job log, so the app records completed jobs itself
 
@@ -143,6 +144,14 @@ Consequence: **you cannot discover command names by trial and error.** Every wro
 
 Meanwhile `streamCtrl` has **no** suffix. The naming is inconsistent between commands, so there's no rule to infer — these strings were recovered by packet-capturing the official desktop app.
 
+### Dismissing the finish dialog is `stateCtrl_cmd` / `setClearPlatform`
+
+```jsonc
+{"cmd": "stateCtrl_cmd", "args": {"action": "setClearPlatform"}}
+```
+
+This is the same call the vendor app's "Clear Platform" button sends — corroborated across three independent third-party FlashForge clients. It's a no-op outside the `completed` state, so the dashboard only shows the button while `status == "completed"`.
+
 ### The camera is a one-shot
 
 The MJPEG server at `:8080` refuses connections until you enable it:
@@ -179,6 +188,7 @@ It then serves **exactly one client per enable** — when that client disconnect
 | `GET /api/raw` | Raw `/detail` passthrough, for debugging |
 | `POST /api/light` | `{"on": true\|false}` — verifies against the printer |
 | `POST /api/camera` | `{"on": true\|false}` — enables/disables the stream |
+| `POST /api/clear_job` | Dismiss the on-screen "print complete" dialog (same as the printer's own Clear Platform button); verifies status leaves `completed` |
 | `GET /camera/stream` | Proxied MJPEG |
 | `GET /camera/thumb` | Current job thumbnail |
 | `GET /api/history` | Completed jobs recorded locally |
